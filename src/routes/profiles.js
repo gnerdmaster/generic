@@ -14,7 +14,7 @@ const {
 
 const TABLE_NAME = "profiles";
 
-const routerFunctions = {
+const routerFunction = {
   search: async function (req, res) {
     let { body, params } = req;
 
@@ -56,35 +56,35 @@ const routerFunctions = {
 };
 
 router.post("/profiles/_search", async (req, res) => {
-  routerFunctions.search(req, res);
+  routerFunction.search(req, res);
 });
 
 router.post("/profiles", async (req, res) => {
-  routerFunctions.save(req, res);
+  routerFunction.save(req, res);
 });
 
 router.post("/profiles/:id/_update", async (req, res) => {
-  routerFunctions.update(req, res);
+  routerFunction.update(req, res);
 });
 
 router.post("/profiles/:id/_delete", async (req, res) => {
-  routerFunctions.delete(req, res);
+  routerFunction.delete(req, res);
 });
 
 router.get("/profiles", async (req, res) => {
-  routerFunctions.get(req, res, "all");
+  routerFunction.get(req, res, "all");
 });
 
 router.get("/profiles/:id", async (req, res) => {
-  routerFunctions.get(req, res, "byId");
+  routerFunction.get(req, res, "byId");
 });
 
 router.put("/profiles/:id", async (req, res) => {
-  routerFunctions.update(req, res);
+  routerFunction.update(req, res);
 });
 
 router.delete("/profiles/:id", async (req, res) => {
-  routerFunctions.delete(req, res);
+  routerFunction.delete(req, res);
 });
 
 module.exports = router;
