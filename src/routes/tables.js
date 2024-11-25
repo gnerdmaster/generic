@@ -1,5 +1,12 @@
 /***
- * Pending to design and finish.
+ * Pending to design:
+ * - Create table (done)
+ * - Drop table
+ * - Alter table
+ * - Rename table
+ * - Add sort column with index additionally
+ * - Migrate table
+ * - Backup database, table or items
  */
 
 const uuid = require("uuid");
