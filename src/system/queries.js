@@ -1,94 +1,9 @@
 const uuid = require("uuid");
-const { DB_CONNECTION } = require("../../configs/connections");
 const { format } = require("mysql2");
 
-const Statuses = {
-  TRASHED: "trashed",
-  ON: "on",
-  OFF: "off",
-};
-
-const Operator = {
-  LIKE: "LIKE",
-  "NOT LIKE": "NOT LIKE",
-  "IS NULL": "IS NULL",
-  "IS NOT NULL": "IS NOT NULL",
-  IN: "IN",
-};
-
-const Function = {
-  /***
-   * Execute query
-   * @param {string} query - Query
-   * @param {Array} param_values - Query parameters
-   * @returns {object} - Query result
-   */
-  executeQuery: async function (query, param_values = []) {
-    return new Promise((resolve, reject) => {
-      DB_CONNECTION.execute(query, param_values, (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(result);
-        }
-      });
-    });
-  },
-  /***
-   * Get operator
-   * @param {object} value - Value
-   * @returns {string} - Operator
-   */
-  getOperator: function (value) {
-    if (
-      typeof value === "object" &&
-      value.operator &&
-      value.operator.toUpperCase() in Operator
-    ) {
-      return Operator[value.operator.toUpperCase()];
-    }
-    return "=";
-  },
-  /***
-   * Get parameter value.
-   * @param {object} value - Value
-   * @param {string} operator - Operator
-   * @returns {string} - Parameter value
-   */
-  formatValueByOperator: function (value, operator = "=") {
-    let new_value = value;
-    if (typeof value === "object") {
-      if ([Operator.LIKE, Operator["NOT LIKE"]].includes(operator)) {
-        new_value = `%${value.value ? value.value : ""}%`;
-      } else if (
-        [Operator["IS NULL"], Operator["IS NOT NULL"]].includes(operator)
-      ) {
-        new_value = null;
-      } else {
-        new_value = value.value;
-      }
-    }
-
-    if (typeof new_value === "string") {
-      return new_value.trim().toLowerCase();
-    }
-    return new_value;
-  },
-};
-/***
- * Send response.
- * @param {object} req - Request object
- * @param {object} res - Response object
- * @param {object} response - Response object
- * @param {number} status_code - Status code
- */
-const _sendResponse = (req, res, response, status_code) => {
-  if (response.success) {
-    res.json(response);
-  } else {
-    res.status(status_code).json(response);
-  }
-};
+const { DB_CONNECTION } = require("@/configs/connections");
+const { Function } = require("./tools");
+const { Operator } = require("./enums");
 
 /***
  * Get item by id (Intern Method). If not found, return {}
@@ -131,7 +46,6 @@ const getAllItems = async (table_name) => {
     const query = `SELECT * FROM ${table_name}`;
 
     let result = await Function.executeQuery(query);
-
     if (Array.isArray(result) && result.length > 0) {
       result = result.map((item) => JSON.parse(item.value));
     }
@@ -281,13 +195,9 @@ const saveItem = async (body, table_name) => {
       status_code = 406;
     } else {
       const id = uuid.v4();
-      if (!body.recordStatus) {
-        body.recordStatus = Statuses.ON;
-      }
       const item = { id, ...body };
-      const query = `INSERT INTO ${table_name} (id, value, status) VALUES (?, ?, ?)`;
-      const params = [item.id, JSON.stringify(item), item.recordStatus];
-
+      const query = `INSERT INTO ${table_name} (id, value) VALUES (?, ?)`;
+      const params = [item.id, JSON.stringify(item)];
       const result_query = await Function.executeQuery(query, params);
 
       response = {
@@ -320,12 +230,7 @@ const updateItem = async (body, table_name) => {
   let status_code = 200;
 
   try {
-    let set_record_status_query = "";
-    if (body.recordStatus) {
-      set_record_status_query = `, status ='${body.recordStatus}'`;
-    }
-
-    const query = `UPDATE ${table_name} SET value = JSON_MERGE_PATCH(value, ?)${set_record_status_query} WHERE id = ?`;
+    const query = `UPDATE ${table_name} SET value = JSON_MERGE_PATCH(value, ?) WHERE id = ?`;
     const query_params = [JSON.stringify(body), body.id];
     const result_query = await Function.executeQuery(query, query_params);
 
@@ -369,23 +274,10 @@ const deleteItem = async (body, table_name) => {
     let item = await _getItemById(table_name, body.id, false);
 
     let result_query = {};
-    let message = "";
+    const query = `DELETE FROM ${table_name} WHERE id = ?`;
+    const params = [body.id];
 
-    if (item.status && item.status !== "trashed") {
-      message = "¡Movido a la papelera exitosamente!";
-
-      item.value.recordStatus = Statuses.TRASHED;
-      body.recordStatus = Statuses.TRASHED;
-
-      result_query = await updateItem(body, table_name);
-    } else {
-      message = "¡Eliminación exitosa!";
-
-      const query = `DELETE FROM ${table_name} WHERE id = ?`;
-      const params = [body.id];
-
-      result_query = await Function.executeQuery(query, params);
-    }
+    result_query = await Function.executeQuery(query, params);
 
     if (result_query.affectedRows === 0) {
       response = {
@@ -396,7 +288,7 @@ const deleteItem = async (body, table_name) => {
     } else {
       response = {
         success: true,
-        message: message,
+        message: "¡Eliminación exitosa!",
         data: JSON.parse(item.value),
       };
     }
@@ -513,5 +405,4 @@ module.exports = {
   saveItem,
   updateItem,
   deleteItem,
-  _sendResponse,
 };

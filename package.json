@@ -3,16 +3,21 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon --require module-alias/register --trace-warnings --require ./aliases.js src/index.js",
+    "start": "nodemon src/index.js",
+    "build": "babel src --out-dir dist --copy-files"
   },
   "keywords": [],
   "author": "Olaf Felix",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@babel/cli": "^7.26.4",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
     "body-parser": "^1.20.3",
     "express": "^4.21.0",
+    "module-alias": "^2.2.3",
     "morgan": "^1.10.0",
     "mysql2": "^3.11.4",
     "uuid": "^10.0.0"
