@@ -1,10 +1,18 @@
 const getEnvironment = (env) => {
+  const config = require("./config");
   const data = require("./package.json");
-  const environments = ["dev", "qa", "prod"].includes(env)
-    ? data.environment[env]
-    : {};
 
-  process.env = { ...process.env, ...environments };
+  const app_data = {
+    APP_NAME: data.name,
+    VERSION: data.version,
+    AUTHOR: data.author,
+  };
+
+  const environment = ["dev", "qa", "prod"].includes(env) ? config[env] : {};
+
+  console.log(environment);
+
+  process.env = { ...process.env, ...app_data, ...environment };
 };
 
 getEnvironment("dev");

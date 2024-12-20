@@ -1,0 +1,7 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYMENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    - echo "Deploying branch $DEPLOYMENT_BRANCH"
+    - git checkout $DEPLOYMENT_BRANCH
+    - npm install
