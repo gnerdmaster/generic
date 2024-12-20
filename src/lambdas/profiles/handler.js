@@ -36,6 +36,9 @@ const function_handler = async (event, res) => {
     console.log("DELETE");
     method = "DELETE";
     body.profileId = params.profileId;
+  } else {
+    console.log("ROUTE NOT FOUND");
+    return { success: false, error: "NOT FOUND", data: {}, status_code: 404 };
   }
 
   const service = new Service(body, method);

@@ -47,7 +47,7 @@ const sendResponseMiddleware = (req, res, next, response, status_code) => {
     "Origin, X-Requested-With, Content-Type, Accept"
   );
 
-  if (response.success) {
+  if (response && response.success) {
     res.json(response);
   } else {
     res.status(status_code).json(response);

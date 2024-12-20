@@ -1,6 +1,6 @@
 const { _lambda } = require("@/system/lamdas");
 
-const basename = "generic";
+const basename = process.env.APP_NAME;
 
 let lambdas = {};
 

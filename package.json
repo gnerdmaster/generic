@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --require module-alias/register --trace-warnings --require ./aliases.js app.js",
-    "dev2": "nodemon --require module-alias/register --trace-warnings --require ./aliases.js src/index.js",
+    "dev": "nodemon --trace-warnings app.js",
+    "develop": "nodemon --require module-alias/register --trace-warnings --require ./aliases.js src/index.js",
     "start": "node app.js",
     "build": "babel src --out-dir dist --copy-files"
   },
@@ -25,5 +25,25 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
+  },
+  "environment": {
+    "dev": {
+      "APP_NAME": "generic",
+      "DOMAIN_BASEPATH": "/api",
+      "DB_MARIADB_HOST": "localhost",
+      "DB_MARIADB_USER": "root",
+      "DB_MARIADB_PASSWORD": "",
+      "DB_MARIADB_DBNAME": "generic",
+      "DB_MARIADB_PORT": "3306"
+    },
+    "prod": {
+      "APP_NAME": "generic",
+      "DOMAIN_BASEPATH": "/api",
+      "DB_MARIADB_HOST": "localhost",
+      "DB_MARIADB_USER": "root",
+      "DB_MARIADB_PASSWORD": "",
+      "DB_MARIADB_DBNAME": "generic",
+      "DB_MARIADB_PORT": "3306"
+    }
   }
 }

@@ -1,5 +1,4 @@
 const fs = require("fs");
-const { type } = require("os");
 
 let originalConsole = JSON.parse(JSON.stringify(console));
 originalConsole.log = console.log.bind(console);

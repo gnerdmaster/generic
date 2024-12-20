@@ -1,4 +1,4 @@
-const { DB_CONNECTION } = require("@/configs/connections");
+const { DB_MARIADB_CONNECTION } = require("@/configs/connections");
 
 /***
  * Send response.
@@ -30,7 +30,7 @@ const Function = {
    */
   executeQuery: async function (query, param_values = []) {
     return new Promise((resolve, reject) => {
-      DB_CONNECTION.execute(query, param_values, (err, result) => {
+      DB_MARIADB_CONNECTION.execute(query, param_values, (err, result) => {
         if (err) {
           reject(err);
         } else {

@@ -1,7 +1,6 @@
 const uuid = require("uuid");
 const { format } = require("mysql2");
 
-const { DB_CONNECTION } = require("@/configs/connections");
 const { Function } = require("./tools");
 const { Operator } = require("./enums");
 

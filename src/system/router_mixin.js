@@ -12,10 +12,11 @@ const routerMixin = (router) => {
   /***
    * Create a route
    * @param {string} method - Method
-   * @param {string} path - Router Path
+   * @param {string} route - Router Path
    * @param {object} _lambda - Lambda Object
    */
-  const createRouter = (method, path, _lambda) => {
+  const createRouter = (method, route, _lambda) => {
+    console.log(route);
     const {
       [_lambda.function_handler]: function_handler,
     } = require(_lambda.file_handler_path);
@@ -33,7 +34,7 @@ const routerMixin = (router) => {
       },
     ];
 
-    router[method.toLowerCase()](path, [...middlewares]);
+    router[method.toLowerCase()](route, [...middlewares]);
   };
 
   return { createRouter };

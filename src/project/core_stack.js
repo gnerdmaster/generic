@@ -1,6 +1,6 @@
 const { createTables } = require("@/project/tables");
-const ApiGateway = require("@/project/api_gateway");
 const { createLambdas } = require("@/project/lambdas");
+const ApiGateway = require("@/project/api_gateway");
 
 const CoreStack = (app) => {
   // Create Tables
