@@ -1,4 +1,11 @@
-const environment_server = require("./config_server");
+// process.env.SERVER_ENVIRONMENT = "prod";
+// process.env.SERVER_DOMAIN_BASEPATH = "/api";
+// process.env.SERVER_DB_MARIADB_HOST = "localhost";
+// process.env.SERVER_DB_MARIADB_USER = "root";
+// process.env.SERVER_DB_MARIADB_PASSWORD = "";
+// process.env.SERVER_DB_MARIADB_DBNAME = "generic";
+// process.env.SERVER_DB_MARIADB_PORT = "3306";
+
 const getEnvironment = (env) => {
   const config = require("./config");
   const data = require("./package.json");
@@ -16,7 +23,8 @@ const getEnvironment = (env) => {
   process.env = { ...process.env, ...app_data, ...environment };
 };
 
-getEnvironment(environment_server.ENVIRONMENT);
+const environment = process.env.SERVER_ENVIRONMENT;
+getEnvironment(environment);
 
 require("./aliases");
 
