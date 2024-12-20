@@ -1,3 +1,4 @@
+const environment_server = require("./config_server");
 const getEnvironment = (env) => {
   const config = require("./config");
   const data = require("./package.json");
@@ -15,7 +16,7 @@ const getEnvironment = (env) => {
   process.env = { ...process.env, ...app_data, ...environment };
 };
 
-getEnvironment("dev");
+getEnvironment(environment_server.ENVIRONMENT);
 
 require("./aliases");
 
