@@ -4,7 +4,6 @@ const DB_MARIADB_CONNECTION = mysql2.createConnection({
   host: process.env.DB_MARIADB_HOST,
   user: process.env.DB_MARIADB_USER,
   password: process.env.DB_MARIADB_PASSWORD,
-  // database: process.env.DB_MARIADB_DBNAME,
   port: process.env.DB_MARIADB_PORT,
 });
 
