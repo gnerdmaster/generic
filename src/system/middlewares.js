@@ -22,7 +22,6 @@ const createLoggerMiddleware = (req, res, next) => {
     headers: req.headers,
     body: req.body,
   };
-  console.log(log.timestamp);
 
   res.on("close", () => {
     log.endTime = performance.now();

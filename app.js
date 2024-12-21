@@ -1,4 +1,4 @@
-// process.env.SERVER_ENVIRONMENT = "prod";
+// process.env.SERVER_ENVIRONMENT = "dev";
 // process.env.SERVER_DOMAIN_BASEPATH = "/api";
 // process.env.SERVER_DB_MARIADB_HOST = "localhost";
 // process.env.SERVER_DB_MARIADB_USER = "root";
@@ -17,8 +17,6 @@ const getEnvironment = (env) => {
   };
 
   const environment = ["dev", "qa", "prod"].includes(env) ? config[env] : {};
-
-  console.log(environment);
 
   process.env = { ...process.env, ...app_data, ...environment };
 };

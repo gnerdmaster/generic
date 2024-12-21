@@ -1,6 +1,6 @@
 const mysql2 = require("mysql2");
 
-const DB_MARIADB_CONNECTION = mysql2.createConnection({
+let DB_MARIADB_CONNECTION = mysql2.createConnection({
   host: process.env.DB_MARIADB_HOST,
   user: process.env.DB_MARIADB_USER,
   password: process.env.DB_MARIADB_PASSWORD,
@@ -14,10 +14,6 @@ DB_MARIADB_CONNECTION.connect((err) => {
     console.log("Conexión de Base de Datos establecida.");
   }
 });
-
-module.exports = {
-  DB_MARIADB_CONNECTION,
-};
 
 //Prueba de conexión
 DB_MARIADB_CONNECTION.execute(
@@ -38,3 +34,7 @@ DB_MARIADB_CONNECTION.changeUser(
   () => {}
 );
 console.log(`Database ${process.env.DB_MARIADB_DBNAME} selected`);
+
+module.exports = {
+  DB_MARIADB_CONNECTION,
+};
