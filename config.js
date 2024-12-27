@@ -1,5 +1,3 @@
-const { config } = require("nodemon");
-
 module.exports = {
   dev: {
     DOMAIN_BASEPATH: "/api",

@@ -6,12 +6,10 @@ const {
   updateItem,
   deleteItem,
 } = require("@/system/queries");
-const { ok, conflict } = require("@/system/http_utils");
+const { ok, conflict, internal_server_error } = require("@/system/http_utils");
 const DBProfiles = require("./db_profiles");
 
 const db_profiles = new DBProfiles();
-
-const TABLE_NAME = "profiles";
 
 class Service {
   constructor(body, method) {
@@ -24,23 +22,48 @@ class Service {
     const { body, method } = this;
     if (method === "CREATE") {
       const { response, error } = await db_profiles.save(body);
-      if (response) {
+      if (!error) {
         result = ok("Registro exitoso", response);
       } else {
         result = conflict(error.message);
       }
     } else if (method === "GET_ALL") {
-      const response = await db_profiles.getAll();
-      result = ok("Consulta exitosa", response);
+      const { response, error } = await db_profiles.getAll();
+      if (!error) {
+        result = ok("Consulta exitosa", response);
+      } else {
+        result = internal_server_error(error.message);
+      }
     } else if (method === "SEARCH") {
-      result = await searchItems(body, TABLE_NAME);
+      const { response, error } = await db_profiles.query(body);
+      if (!error) {
+        result = ok("Consulta exitosa", response);
+      } else {
+        result = internal_server_error(error.message);
+      }
     } else if (method === "GET_BY_ID") {
-      const response = await db_profiles.get({ profileId: body.profileId });
-      result = ok("Consulta exitosa", response);
+      const { response, error } = await db_profiles.get({
+        profileId: body.profileId,
+      });
+      if (!error) {
+        result = ok("Consulta exitosa", response);
+      } else {
+        result = internal_server_error(error.message);
+      }
     } else if (method === "UPDATE") {
-      result = await updateItem(body, TABLE_NAME);
+      const { response, error } = await db_profiles.update(body);
+      if (!error) {
+        result = ok("Actualización exitosa", response);
+      } else {
+        result = internal_server_error(error.message);
+      }
     } else if (method === "DELETE") {
-      result = deleteItem(body, TABLE_NAME);
+      const { response, error } = await db_profiles.delete(body);
+      if (!error) {
+        result = ok("Eliminación exitosa", response);
+      } else {
+        result = internal_server_error(error.message);
+      }
     }
 
     return result;

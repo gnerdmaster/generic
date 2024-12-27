@@ -1,12 +1,5 @@
-// process.env.SERVER_ENVIRONMENT = "dev";
-// process.env.SERVER_DOMAIN_BASEPATH = "/api";
-// process.env.SERVER_DB_MARIADB_HOST = "localhost";
-// process.env.SERVER_DB_MARIADB_USER = "root";
-// process.env.SERVER_DB_MARIADB_PASSWORD = "";
-// process.env.SERVER_DB_MARIADB_DBNAME = "generic";
-// process.env.SERVER_DB_MARIADB_PORT = "3306";
-
-const getEnvironment = (env) => {
+const getEnvironment = (default_environment) => {
+  const environment = process.env.SERVER_ENVIRONMENT || default_environment;
   const config = require("./config");
   const data = require("./package.json");
 
@@ -16,13 +9,14 @@ const getEnvironment = (env) => {
     AUTHOR: data.author,
   };
 
-  const environment = ["dev", "qa", "prod"].includes(env) ? config[env] : {};
+  const environment_data = ["dev", "qa", "prod"].includes(environment)
+    ? config[environment]
+    : {};
 
-  process.env = { ...process.env, ...app_data, ...environment };
+  process.env = { ...process.env, ...app_data, ...environment_data };
 };
 
-const environment = process.env.SERVER_ENVIRONMENT;
-getEnvironment(environment);
+getEnvironment("dev");
 
 require("./aliases");
 

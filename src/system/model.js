@@ -5,10 +5,26 @@ class Model {
   constructor(tableName) {
     this.tableName = tableName;
     this.db_client = DB_MARIADB_CONNECTION;
+    this.indexes = this.getIndexes();
   }
 
-  async executeQuery(query, param_values = [], defaultValue = []) {
-    let result = defaultValue;
+  buildError(response) {
+    return {
+      response: false,
+      error: {
+        errno: response.errno,
+        code: response.code,
+        sqlMessage: response.sqlMessage,
+        message:
+          response.code in mariadb_error_type
+            ? mariadb_error_type[response.code]
+            : response.sqlMessage,
+      },
+    };
+  }
+
+  async executeQuery(query, param_values = []) {
+    let result = null;
     try {
       result = await new Promise((resolve, reject) => {
         this.db_client.execute(query, param_values, (err, result) => {
@@ -19,55 +35,60 @@ class Model {
           }
         });
       });
-
-      // result = typeof defaultValue == "boolean" ? true : result;
     } catch (err) {
-      // console.error(err);
       result = err;
-      // result = typeof defaultValue == "boolean" ? false : result;
     }
 
     return result;
   }
 
   async getIndexes() {
-    let indexes = await this.executeQuery(`SHOW INDEX FROM ${this.tableName}`);
+    const response = await this.executeQuery(
+      `SHOW INDEX FROM ${this.tableName}`
+    );
 
-    if (indexes.length > 0) {
-      indexes = indexes.map((index) => index.Column_name);
-    }
+    const indexes = Array.isArray(response)
+      ? response.map((index) => index.Column_name)
+      : [];
 
     return indexes;
   }
 
   async get(key) {
     let query = `SELECT * FROM ${this.tableName} WHERE `;
-    let values = [];
+    let param_values = [];
 
     for (const field of Object.keys(key)) {
       query += `${field} = ? AND `;
-      values.push(key[field]);
+      param_values.push(key[field]);
     }
 
     query = query.slice(0, -5); // eliminar el último " AND "
 
-    let result = await this.executeQuery(query, values);
+    let response = await this.executeQuery(query, param_values);
 
-    if (result.length > 0) {
-      result = JSON.parse(result[0].value);
+    if (Array.isArray(response)) {
+      response = response.length > 0 ? JSON.parse(response[0].value) : {};
+      return { response };
+    } else {
+      //It is not an array then it's an error
+      return { ...this.buildError(response) };
     }
-
-    return result;
   }
 
   async getAll() {
-    let result = await this.executeQuery(`SELECT * FROM ${this.tableName}`);
+    let response = await this.executeQuery(`SELECT * FROM ${this.tableName}`);
 
-    if (result.length > 0) {
-      result = result.map((item) => JSON.parse(item.value));
+    if (Array.isArray(response)) {
+      response =
+        response.length > 0
+          ? response.map((item) => JSON.parse(item.value))
+          : [];
+      return { response };
+    } else {
+      //It is not an array then it's an error
+      return { ...this.buildError(response) };
     }
-
-    return result;
   }
 
   async save(data) {
@@ -89,69 +110,35 @@ class Model {
     }
 
     const params = [...index_values, JSON.stringify(data)];
-    let response = await this.executeQuery(query, params, false);
-    let error = {};
+    let response = await this.executeQuery(query, params);
 
-    console.log("save - result", response);
     if (response.affectedRows > 0) {
-      response = true;
+      return { response: true };
     } else {
-      error = {
-        errno: response.errno,
-        code: response.code,
-        sqlMessage: response.sqlMessage,
-        message:
-          response.code in mariadb_error_type
-            ? mariadb_error_type[response.code]
-            : response.sqlMessage,
-      };
-
-      response = false;
+      return { ...this.buildError(response) };
     }
-
-    return { response, error };
   }
 
   async update(key, data) {
-    let indexes = await this.getIndexes();
-    const index_columns = indexes.join(", ");
-    let index_params = Array(indexes.length).fill("?").join(", ");
-    let index_values = indexes.map((index) => key[index]);
+    const query = `UPDATE ${table_name} SET value = JSON_MERGE_PATCH(value, ?) WHERE `;
+    let index_params = [];
 
-    let query = `UPDATE <#TABLE_NAME#> SET value = ? WHERE <#INDEX_COLUMNS#> = <#INDEX_PARAMS#>`;
-
-    for (const replace of [
-      { "<#TABLE_NAME#>": this.tableName },
-      { "<#INDEX_COLUMNS#>": index_columns },
-      { "<#INDEX_PARAMS#>": index_params },
-    ]) {
-      for (const [key, value] of Object.entries(replace)) {
-        query = query.replace(key, value);
-      }
+    for (const field of Object.keys(key)) {
+      query += `${field} = ? AND `;
+      index_params.push(key[field]);
     }
 
-    const params = [JSON.stringify(data), ...index_values];
-    let response = await this.executeQuery(query, params, false);
-    let error = {};
+    query = query.slice(0, -5); // eliminar el último " AND "
+    console.log("update_query", query);
 
-    console.log("update - result", response);
+    const param_values = [JSON.stringify(data), ...index_params];
+    let response = await this.executeQuery(query, param_values);
+
     if (response.affectedRows > 0) {
-      response = true;
+      return { response: true };
     } else {
-      error = {
-        errno: response.errno,
-        code: response.code,
-        sqlMessage: response.sqlMessage,
-        message:
-          error.code in mariadb_error_type
-            ? mariadb_error_type[error.code]
-            : response.sqlMessage,
-      };
-
-      response = false;
+      return { ...this.buildError(response) };
     }
-
-    return { response, error };
   }
 
   async delete(key) {
@@ -172,6 +159,11 @@ class Model {
         console.log(results);
       }
     });
+  }
+
+  async query(query) {
+    let response = await this.executeQuery(query);
+    return response;
   }
 }
 

@@ -18,10 +18,6 @@ app.use(express.urlencoded({ extended: true }));
 CoreStack(app);
 
 //Iniciando el servidor
-// app.listen(app.get("port"), () => {
-//   console.log(`Server listening on port ${app.get("port")}`);
-// });
-
 app.listen(3000, () => {
   console.log(`Server listening on port ${app.get("port")}`);
 });

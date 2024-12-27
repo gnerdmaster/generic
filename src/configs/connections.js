@@ -22,7 +22,9 @@ DB_MARIADB_CONNECTION.execute(
     if (err) {
       console.log(err);
     } else {
-      console.log(`Database ${process.env.DB_MARIADB_DBNAME} created`, result);
+      console.log(
+        `>>> Database ${process.env.DB_MARIADB_DBNAME} created or exists already.`
+      );
     }
   }
 );

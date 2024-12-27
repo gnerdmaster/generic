@@ -16,7 +16,6 @@ const routerMixin = (router) => {
    * @param {object} _lambda - Lambda Object
    */
   const createRouter = (method, route, _lambda) => {
-    console.log(route);
     const {
       [_lambda.function_handler]: function_handler,
     } = require(_lambda.file_handler_path);
