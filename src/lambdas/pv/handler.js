@@ -1,30 +1,24 @@
 const { sendResponse } = require("@/system/tools");
-const { validation } = require("./validation");
+const validate = require("./validator");
 
 const Service = require("./service");
 
-const function_handler = validation(async function function_handler (event, res) {
+const validationSchema = {
+  type: "object",
+  required: ["profileId"],
+  properties: {
+    profileId: { type: "string" },
+  },
+};
+
+const function_handler = async (event, res) => {
   let { body, params, method, route } = event;
   let result = {};
   console.log("METHOD: ", method, "PATH: ", route.path);
 
-  const routeMap = {
-    GET: {
-      "/profiles": "GET_ALL",
-      "/profiles/:profileId": "GET_BY_ID",
-    },
-    POST: {
-      "/profiles": "CREATE",
-      "/profiles/_create": "CREATE",
-      "/profiles/_search": "SEARCH",
-    },
-    PUT: {
-      "/profiles/:profileId": "UPDATE",
-    },
-    DELETE: {
-      "/profiles/:profileId": "DELETE",
-    },
-  };
+  const routeMao = {
+    
+  }
 
   if (method === "GET" && route.path === "/profiles") {
     method = "GET_ALL";
@@ -52,9 +46,9 @@ const function_handler = validation(async function function_handler (event, res)
   }
 
   const service = new Service(body, method);
-  result = service.process();
+  result = await service.process();
 
   return result;
-});
+};
 
 module.exports.function_handler = function_handler;

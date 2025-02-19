@@ -50,6 +50,7 @@ const createTable = async (table_name, primary_key, sort_key = null) => {
 
 const createTables = async () => {
   tables.profiles = await createTable("profiles", "profileId");
+  tables.pv_products = await createTable("pv_products", "productId");
 
   return tables;
 };
